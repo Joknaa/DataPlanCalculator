@@ -83,26 +83,26 @@
 </head>
 <body>
 
-  <div class="card">
-    <h2>📶 Network Data Plan Calculator</h2>
+<div class="card">
+  <h2>📶 Network Data Plan Calculator</h2>
 
-    <label>Plan 1 Remaining (GB)</label>
-    <input id="plan1" type="number" step="0.01" value="60">
+  <label>Plan 1 Remaining (GB)</label>
+  <input id="plan1" type="number" step="0.01" value="60">
 
-    <label>Plan 2 Remaining (GB)</label>
-    <input id="plan2" type="number" step="0.01" value="60">
+  <label>Plan 2 Remaining (GB)</label>
+  <input id="plan2" type="number" step="0.01" value="60">
 
-    <label>Daily Active Hours</label>
-    <div class="row">
-      <input id="activeStart" type="number" min="0" max="23" value="6">
-      <input id="activeEnd" type="number" min="1" max="24" value="22">
-    </div>
-    <div class="muted">Default: 06:00 → 22:00</div>
-
-    <button onclick="calculate()">Calculate</button>
-
-    <div class="output" id="output"></div>
+  <label>Daily Active Hours</label>
+  <div class="row">
+    <input id="activeStart" type="number" min="0" max="23" value="6">
+    <input id="activeEnd" type="number" min="1" max="24" value="22">
   </div>
+  <div class="muted">Default: 06:00 → 22:00</div>
+
+  <button onclick="calculate()">Calculate</button>
+
+  <div class="output" id="output"></div>
+</div>
 
 <script>
 function calculate() {
@@ -148,6 +148,19 @@ function calculate() {
   const gbPerDay = totalGB / effectiveDays;
   const mbPerDay = gbPerDay * 1024;
 
+  const todayRemainingGB = gbPerDay * todayRemainingFraction;
+  const todayRemainingMB = todayRemainingGB * 1024;
+
+  let todayInsight;
+  if (todayRemainingFraction === 0) {
+    todayInsight = `<span class="highlight-red">Today’s active hours are over.</span>`;
+  } else {
+    todayInsight = `
+      <span class="highlight-green">${todayRemainingGB.toFixed(2)} GB</span>
+      (${todayRemainingMB.toFixed(0)} MB)
+    `;
+  }
+
   document.getElementById("output").innerHTML = `
     <strong>Total Remaining:</strong>
     <span class="highlight-green">${totalGB.toFixed(2)} GB</span><br><br>
@@ -158,9 +171,12 @@ function calculate() {
     <strong>Today's remaining weight:</strong>
     ${(todayRemainingFraction * 100).toFixed(0)}%<br><br>
 
-    <strong>Recommended daily usage:</strong><br>
+    <strong>Average target:</strong><br>
     <span class="highlight-green">${gbPerDay.toFixed(2)} GB / day</span><br>
-    <span class="highlight-yellow">${mbPerDay.toFixed(0)} MB / day</span>
+    <span class="highlight-yellow">${mbPerDay.toFixed(0)} MB / day</span><br><br>
+
+    <strong>📅 You can still consume today:</strong><br>
+    ${todayInsight}
 
     <div class="muted"><br>
       Based on active hours and current time (${now.toTimeString().slice(0,5)})
